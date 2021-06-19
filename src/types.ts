@@ -269,6 +269,10 @@ export interface InfinityDataSourceJSONOptions extends DataSourceJsonData {
     enabled: boolean;
     allowed_paths?: string[];
   };
+  flavour_enabled?: boolean;
+  flavour?: {
+    type: 'demo' | 'inline' | 'url';
+  };
 }
 export interface InfinityDataSourceSecureJSONOptions {
   basicAuthPassword?: string;

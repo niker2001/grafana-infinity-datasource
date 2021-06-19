@@ -7,6 +7,7 @@ import { GlobalQueryEditor } from './config/GlobalQueryEditor';
 import { SecureFieldsEditor } from './config/SecureFieldsEditor';
 import { URLEditor } from './config/URL';
 import { AuthEditor } from './config/Auth';
+import { FlavourEditor } from './config/FlavourEditor';
 // import { LocalSourcesEditor } from './config/LocalSourcesEditor';
 import { InfinityDataSourceJSONOptions } from '../types';
 
@@ -19,6 +20,7 @@ export const InfinityConfigEditor: React.FC<Props> = ({ options, onOptionsChange
   const [headersOpen, setHeadersOpen] = useState(false);
   const [queriesOpen, setQueriesOpen] = useState(false);
   const [globalsOpen, setGlobalsOpen] = useState(false);
+  const [flavoursOpen, setFlavoursOpen] = useState(false);
   // const [localSourcesOpen, setLocalSourcesOpen] = useState(false);
   options.jsonData = defaultsDeep(options.jsonData, {
     global_queries: [],
@@ -85,6 +87,16 @@ export const InfinityConfigEditor: React.FC<Props> = ({ options, onOptionsChange
       >
         <div style={{ padding: '0px 10px' }}>
           <GlobalQueryEditor options={options} onOptionsChange={onOptionsChange} />
+        </div>
+      </Collapse>
+      <Collapse
+        label="Flavour - Experimental"
+        isOpen={flavoursOpen}
+        collapsible={true}
+        onToggle={e => setFlavoursOpen(!flavoursOpen)}
+      >
+        <div style={{ padding: '0px 10px' }}>
+          <FlavourEditor options={options} onOptionsChange={onOptionsChange} />
         </div>
       </Collapse>
       {/* <Collapse
