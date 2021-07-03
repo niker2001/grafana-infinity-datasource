@@ -1,0 +1,23 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "Cypress tests",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "devDependencies": {
+    "@grafana/e2e": "7.5.5",
+    "@grafana/toolkit": "8.0.3",
+    "@types/node": "^15.12.5",
+    "cypress": "^7.6.0"
+  },
+  "dependencies": {
+    "typescript": "4.1.2"
+  }
+}

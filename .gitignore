@@ -108,3 +108,10 @@ docs/
 .DS_Store
 
 .notes
+
+# Cypress
+e2e/cypress/screenshots
+e2e/cypress/videos
+e2e/cypress/results
+e2e/cypress/**/*.js
+e2e/cypress/**/*.js.map
