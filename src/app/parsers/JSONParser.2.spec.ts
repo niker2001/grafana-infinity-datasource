@@ -1,16 +1,12 @@
 import { JSONParser } from './JSONParser';
-import { InfinityQuerySources, InfinityQueryFormat, InfinityQueryType, InfinityQuery } from './../../types';
+import { InfinityQuery } from './../../types';
 
 const defaultTarget: InfinityQuery = {
   refId: '',
-  type: InfinityQueryType.JSON,
-  source: InfinityQuerySources.Inline,
+  type: 'json',
+  source: 'inline',
   data: '',
-  format: InfinityQueryFormat.Table,
-  url: '',
-  url_options: {
-    method: 'GET',
-  },
+  format: 'table',
   root_selector: '',
   columns: [],
 };

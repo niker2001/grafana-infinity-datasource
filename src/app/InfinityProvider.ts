@@ -1,46 +1,59 @@
 import { getTemplateSrv } from '@grafana/runtime';
 import { CSVParser, JSONParser, XMLParser, HTMLParser } from './parsers';
-import { InfinityQuery, InfinityQuerySources, InfinityQueryType } from '../types';
-import { Datasource } from './../datasource';
+import {
+  InfinityQuery,
+  InfinityDataQuery,
+  InfinityHTMLQuery,
+  InfinityCSVQuery,
+  InfinityJSONQuery,
+  InfinityGraphqlQuery,
+  InfinityXMLQuery,
+} from '../types';
+import { InfinityDatasource } from './../datasource';
 import { normalizeURL } from './utils';
+import { isDataSourceQuery } from './queryUtils';
 
 export class InfinityProvider {
-  constructor(private target: InfinityQuery, private datasource: Datasource) {}
+  constructor(private target: InfinityDataQuery, private datasource: InfinityDatasource) {}
   private async formatResults(res: any) {
     const query = this.target;
-    query.root_selector = getTemplateSrv().replace(query.root_selector);
+    if (query.type !== 'csv') {
+      query.root_selector = getTemplateSrv().replace(query.root_selector);
+    }
     switch (this.target.type) {
-      case InfinityQueryType.HTML:
-        return new HTMLParser(res, query).getResults();
-      case InfinityQueryType.JSON:
-      case InfinityQueryType.GraphQL:
-        return new JSONParser(res, query).getResults();
-      case InfinityQueryType.XML:
-        let xmlData = await new XMLParser(res, query);
+      case 'html':
+        return new HTMLParser(res, query as Extract<InfinityQuery, InfinityHTMLQuery>).getResults();
+      case 'json':
+      case 'graphql':
+        return new JSONParser(
+          res,
+          query as Extract<InfinityQuery, InfinityJSONQuery | InfinityGraphqlQuery>
+        ).getResults();
+      case 'xml':
+        let xmlData = await new XMLParser(res, query as Extract<InfinityQuery, InfinityXMLQuery>);
         return xmlData.getResults();
-      case InfinityQueryType.CSV:
-        return new CSVParser(res, query).getResults();
+      case 'csv':
+        return new CSVParser(res, query as Extract<InfinityQuery, InfinityCSVQuery>).getResults();
       default:
         return undefined;
     }
   }
   private fetchResults() {
     return new Promise((resolve, reject) => {
-      const target = this.target;
-      target.url = normalizeURL(target.url);
-      this.datasource
-        .postResource('proxy', target)
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((ex) => {
-          reject(ex);
-        });
+      if (isDataSourceQuery(this.target) && this.target.source === 'url') {
+        const url = normalizeURL(this.target.url);
+        this.datasource
+          .postResource('proxy', { ...this.target, url })
+          .then(resolve)
+          .catch(reject);
+      } else {
+        reject('not a remote source');
+      }
     });
   }
   query() {
     return new Promise((resolve, reject) => {
-      if (this.target.source === InfinityQuerySources.Inline) {
+      if (this.target.source === 'inline') {
         resolve(this.formatResults(this.target.data));
       } else {
         this.fetchResults()

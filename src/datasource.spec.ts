@@ -1,6 +1,5 @@
 import { PluginType } from '@grafana/data';
-import { Datasource } from './datasource';
-import { VariableQueryType } from './types';
+import { InfinityDatasource } from './datasource';
 
 function TemplateSrvStub(this: any) {
   this.replace = (text: string) => {
@@ -48,10 +47,10 @@ const DummyDatasource = {
 describe('metricFindQuery - Random Variable', () => {
   it('Random', () => {
     expect.assertions(1);
-    new Datasource(DummyDatasource)
+    new InfinityDatasource(DummyDatasource)
       .metricFindQuery({
         query: 'Random(A,B,C,D)',
-        queryType: VariableQueryType.Legacy,
+        queryType: 'legacy',
       })
       .then((res) => {
         expect(['A', 'B', 'C', 'D']).toContain(res[0].text);
@@ -65,10 +64,10 @@ describe('metricFindQuery - Random Variable', () => {
 describe('metricFindQuery - Join', () => {
   it('Join', () => {
     expect.assertions(1);
-    new Datasource(DummyDatasource)
+    new InfinityDatasource(DummyDatasource)
       .metricFindQuery({
         query: 'Join(A,B,C,D)',
-        queryType: VariableQueryType.Legacy,
+        queryType: 'legacy',
       })
       .then((res) => {
         expect(res[0].text).toBe('ABCD');
@@ -82,10 +81,10 @@ describe('metricFindQuery - Join', () => {
 describe('metricFindQuery - Collection', () => {
   it('Collection', () => {
     expect.assertions(5);
-    new Datasource(DummyDatasource)
+    new InfinityDatasource(DummyDatasource)
       .metricFindQuery({
         query: 'Collection(A,B,C,D)',
-        queryType: VariableQueryType.Legacy,
+        queryType: 'legacy',
       })
       .then((res) => {
         expect(res.length).toBe(2);
@@ -103,10 +102,10 @@ describe('metricFindQuery - Collection', () => {
 describe('metricFindQuery - CollectionLookup', () => {
   it('CollectionLookup', () => {
     expect.assertions(3);
-    new Datasource(DummyDatasource)
+    new InfinityDatasource(DummyDatasource)
       .metricFindQuery({
         query: 'CollectionLookup(pd,prod-server,np,nonprod-server,dev,dev-server,np)',
-        queryType: VariableQueryType.Legacy,
+        queryType: 'legacy',
       })
       .then((res) => {
         expect(res.length).toBe(1);
@@ -119,10 +118,10 @@ describe('metricFindQuery - CollectionLookup', () => {
   });
   it('CollectionLookup', () => {
     expect.assertions(3);
-    new Datasource(DummyDatasource)
+    new InfinityDatasource(DummyDatasource)
       .metricFindQuery({
         query: 'CollectionLookup(A,a,B,b,C,c,D,d,C)',
-        queryType: VariableQueryType.Legacy,
+        queryType: 'legacy',
       })
       .then((res) => {
         expect(res.length).toBe(1);
@@ -135,10 +134,10 @@ describe('metricFindQuery - CollectionLookup', () => {
   });
   it('CollectionLookup', () => {
     expect.assertions(1);
-    new Datasource(DummyDatasource)
+    new InfinityDatasource(DummyDatasource)
       .metricFindQuery({
         query: 'CollectionLookup(A,a,B,b,C,c,D,d,E)',
-        queryType: VariableQueryType.Legacy,
+        queryType: 'legacy',
       })
       .then((res) => {
         expect(res.length).toBe(0);

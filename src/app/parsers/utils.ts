@@ -1,17 +1,19 @@
 import { get, set } from 'lodash';
-import { ScrapColumn, ScrapColumnFormat } from './../../types';
+import { InfinityColumn } from './../../types';
 
-const guessColumnTypeFromField = (obj: any): ScrapColumnFormat => {
+const guessColumnTypeFromField = (
+  obj: any
+): 'string' | 'number' | 'timestamp' | 'timestamp_epoch' | 'timestamp_epoch_s' => {
   switch (typeof obj) {
     case 'number':
-      return ScrapColumnFormat.Number;
+      return 'number';
     case 'string':
     default:
-      return ScrapColumnFormat.String;
+      return 'string';
   }
 };
 
-export const getColumnsFromObjectArray = (result: any): ScrapColumn[] => {
+export const getColumnsFromObjectArray = (result: any): InfinityColumn[] => {
   if (result) {
     return Object.keys(result).map((key) => {
       return { selector: key, text: key, type: guessColumnTypeFromField(result[key]) };
@@ -21,14 +23,14 @@ export const getColumnsFromObjectArray = (result: any): ScrapColumn[] => {
   }
 };
 
-export const normalizeColumns = (columns: ScrapColumn[]): ScrapColumn[] => {
+export const normalizeColumns = (columns: InfinityColumn[]): InfinityColumn[] => {
   return [...columns].map((c) => {
     c.text = c.text || c.selector;
     return c;
   });
 };
 
-export const columnarToTable = (response: any, columns: ScrapColumn[] = []) => {
+export const columnarToTable = (response: any, columns: InfinityColumn[] = []) => {
   let res: any[] = [];
   columns =
     columns.length > 0
@@ -37,7 +39,7 @@ export const columnarToTable = (response: any, columns: ScrapColumn[] = []) => {
           return {
             selector: k,
             text: k,
-            type: ScrapColumnFormat.String,
+            type: 'string',
           };
         });
   let len = get(response, columns[0].selector).length;

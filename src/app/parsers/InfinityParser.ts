@@ -2,41 +2,49 @@ import { uniq, flatten } from 'lodash';
 import { filterResults } from './filter';
 import {
   InfinityQuery,
-  ScrapColumn,
+  InfinityColumn,
   GrafanaTableRow,
   timeSeriesResult,
-  ScrapColumnFormat,
-  InfinityQueryFormat,
-  InfinityQueryType,
+  InfinityJSONQuery,
+  InfinityGraphqlQuery,
+  InfinityCSVQuery,
+  InfinityHTMLQuery,
+  InfinityXMLQuery,
 } from './../../types';
 import { toDataFrame } from '@grafana/data';
 import { normalizeColumns } from './utils';
 
 export class InfinityParser {
-  target: InfinityQuery;
+  target: Extract<
+    InfinityQuery,
+    InfinityJSONQuery | InfinityGraphqlQuery | InfinityCSVQuery | InfinityHTMLQuery | InfinityXMLQuery
+  >;
   rows: GrafanaTableRow[];
   series: timeSeriesResult[];
-  AutoColumns: ScrapColumn[];
-  StringColumns: ScrapColumn[];
-  NumbersColumns: ScrapColumn[];
-  TimeColumns: ScrapColumn[];
-  constructor(target: InfinityQuery) {
+  AutoColumns: InfinityColumn[];
+  StringColumns: InfinityColumn[];
+  NumbersColumns: InfinityColumn[];
+  TimeColumns: InfinityColumn[];
+  constructor(
+    target: Extract<
+      InfinityQuery,
+      InfinityJSONQuery | InfinityGraphqlQuery | InfinityCSVQuery | InfinityHTMLQuery | InfinityXMLQuery
+    >
+  ) {
     this.rows = [];
     this.series = [];
     this.target = target;
-    this.AutoColumns = target.columns || [];
-    this.StringColumns = target.columns.filter((t) => t.type === ScrapColumnFormat.String);
-    this.NumbersColumns = target.columns.filter((t) => t.type === ScrapColumnFormat.Number);
+    this.StringColumns = target.columns.filter((t) => t.type === 'string');
+    this.NumbersColumns = target.columns.filter((t) => t.type === 'number');
+
     this.TimeColumns = target.columns.filter(
-      (t) =>
-        t.type === ScrapColumnFormat.Timestamp ||
-        t.type === ScrapColumnFormat.Timestamp_Epoch ||
-        t.type === ScrapColumnFormat.Timestamp_Epoch_Seconds
+      (t) => t.type === 'timestamp' || t.type === 'timestamp_epoch' || t.type === 'timestamp_epoch_s'
     );
+    this.AutoColumns = target.columns || [];
   }
   private canAutoGenerateColumns(): boolean {
     return (
-      [InfinityQueryType.CSV, InfinityQueryType.JSON, InfinityQueryType.GraphQL].includes(this.target.type) &&
+      (this.target.type === 'csv' || this.target.type === 'json' || this.target.type === 'graphql') &&
       this.target.columns.length === 0
     );
   }
@@ -70,9 +78,9 @@ export class InfinityParser {
     ) {
       this.rows = filterResults(this.rows, this.target.columns, this.target.filters);
     }
-    if (this.target.format === InfinityQueryFormat.TimeSeries) {
+    if (this.target.format === 'timeseries') {
       return this.toTimeSeries();
-    } else if (this.target.format === InfinityQueryFormat.DataFrame) {
+    } else if (this.target.format === 'dataframe') {
       const frame = toDataFrame(this.toTable());
       frame.name = this.target.refId;
       return frame;

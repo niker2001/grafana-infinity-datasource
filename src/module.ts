@@ -1,10 +1,11 @@
 import { DataSourcePlugin } from '@grafana/data';
-import { Datasource } from './datasource';
-import { InfinityConfigEditor } from './editors/config.editor';
-import { QueryEditor } from './editors/query.editor';
-import { VariableEditor } from './editors/variable.editor';
+import { InfinityConfigEditor, InfinityQueryEditor, InfinityVariableEditor } from './editors';
+import { InfinityDatasource } from './datasource';
+import { InfinityConfig, InfinityQuery, InfinitySecureConfig } from 'types';
 
-export const plugin = new DataSourcePlugin(Datasource)
+export const plugin = new DataSourcePlugin<InfinityDatasource, InfinityQuery, InfinityConfig, InfinitySecureConfig>(
+  InfinityDatasource
+)
   .setConfigEditor(InfinityConfigEditor)
-  .setQueryEditor(QueryEditor)
-  .setVariableQueryEditor(VariableEditor);
+  .setQueryEditor(InfinityQueryEditor)
+  .setVariableQueryEditor(InfinityVariableEditor);

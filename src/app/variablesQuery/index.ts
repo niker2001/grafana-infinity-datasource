@@ -5,17 +5,17 @@ import { InfinityProvider } from './../InfinityProvider';
 import { IsValidInfinityQuery, replaceVariables } from '../queryUtils';
 import {
   InfinityQuery,
-  InfinityInstanceSettings,
-  VariableQuery,
-  VariableQueryType,
-  DefaultInfinityQuery,
+  InfinityConfig,
+  InfinityVariableQuery,
+  defaultInfinityQuery,
+  InfinityDataQuery,
 } from './../../types';
 import { CollectionVariable } from './Collection';
 import { CollectionLookupVariable } from './CollectionLookup';
 import { JoinVariable } from './Join';
 import { RandomVariable } from './Random';
 import { UnixTimeStampVariable } from './UnixTimeStamp';
-import { Datasource } from './../../datasource';
+import { InfinityDatasource } from './../../datasource';
 
 const getTemplateVariablesFromResult = (res: any): Array<SelectableValue<string>> => {
   if (res.columns && res.columns.length > 0) {
@@ -41,26 +41,26 @@ const getTemplateVariablesFromResult = (res: any): Array<SelectableValue<string>
   }
 };
 
-export const migrateLegacyQuery = (query: VariableQuery | string): VariableQuery => {
+export const migrateLegacyQuery = (query: InfinityVariableQuery | string): InfinityVariableQuery => {
   if (typeof query === 'string') {
     return {
       query: query,
-      queryType: VariableQueryType.Legacy,
+      queryType: 'legacy',
       infinityQuery: {
-        ...DefaultInfinityQuery,
+        ...defaultInfinityQuery,
         refId: 'variable',
-      },
+      } as InfinityQuery,
     };
   } else if (query && query.queryType) {
     return {
       ...query,
-      infinityQuery: defaultsDeep(query.infinityQuery, DefaultInfinityQuery),
+      infinityQuery: defaultsDeep(query.infinityQuery, defaultInfinityQuery),
     };
   } else {
     return {
       query: '',
-      queryType: VariableQueryType.Legacy,
-      infinityQuery: defaultsDeep(query.infinityQuery, DefaultInfinityQuery),
+      queryType: 'legacy',
+      infinityQuery: defaultsDeep(query.infinityQuery, defaultInfinityQuery),
     };
   }
 };
@@ -70,20 +70,21 @@ interface VariableProvider {
 }
 
 export class InfinityVariableProvider implements VariableProvider {
-  infinityQuery: InfinityQuery;
-  instanceSettings: InfinityInstanceSettings;
+  infinityQuery: InfinityDataQuery;
+  instanceSettings: InfinityConfig;
   constructor(
-    infinityQuery: InfinityQuery,
-    instanceSettings: InfinityInstanceSettings,
-    private datasource: Datasource
+    infinityQuery: InfinityDataQuery,
+    instanceSettings: InfinityConfig,
+    private datasource: InfinityDatasource
   ) {
     this.infinityQuery = infinityQuery;
     this.instanceSettings = instanceSettings;
   }
   query(): Promise<Array<SelectableValue<string>>> {
     return new Promise((resolve, reject) => {
-      if (IsValidInfinityQuery(this.infinityQuery)) {
-        let provider = new InfinityProvider(replaceVariables(this.infinityQuery, {}), this.datasource);
+      if (IsValidInfinityQuery(this.infinityQuery as InfinityQuery)) {
+        const q = replaceVariables(this.infinityQuery as InfinityQuery, {});
+        let provider = new InfinityProvider(q as InfinityDataQuery, this.datasource);
         provider
           .query()
           .then((res: any) => {

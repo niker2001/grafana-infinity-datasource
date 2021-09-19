@@ -1,54 +1,78 @@
 import { getTemplateSrv } from '@grafana/runtime';
 import { ScopedVars } from '@grafana/data';
-import { InfinityQuery, InfinityQuerySources, InfinityQueryType, InfinityInstanceSettings } from '../types';
+import { InfinityQuery, InfinityDataQuery, InfinityInstanceSettings } from '../types';
 
 const replaceVariable = (input: string, scopedVars: ScopedVars): string => {
   return getTemplateSrv().replace(input || '', scopedVars, 'glob');
 };
 
+export const isDataSourceQuery = (query: InfinityQuery | InfinityDataQuery): query is InfinityDataQuery => {
+  return (
+    query.type === 'csv' ||
+    query.type === 'json' ||
+    query.type === 'xml' ||
+    query.type === 'html' ||
+    query.type === 'graphql'
+  );
+};
+
 export const replaceVariables = (query: InfinityQuery, scopedVars: ScopedVars): InfinityQuery => {
-  return {
-    ...query,
-    url: replaceVariable(query.url, scopedVars),
-    data: replaceVariable(query.data, scopedVars),
-    url_options: {
-      ...query.url_options,
-      data: replaceVariable(query.url_options?.data || '', scopedVars),
-      params: query.url_options?.params?.map((param) => {
-        return {
-          ...param,
-          value: getTemplateSrv().replace(param?.value || '', scopedVars, 'glob'),
-        };
+  let newQuery = { ...query };
+  if (isDataSourceQuery(newQuery)) {
+    newQuery = {
+      ...newQuery,
+      filters: (newQuery.filters ? [...newQuery.filters] : []).map((filter) => {
+        filter.value = filter.value.map((val) => {
+          return getTemplateSrv().replace(val || '', scopedVars, 'glob');
+        });
+        return filter;
       }),
-      headers: query.url_options?.headers?.map((header) => {
-        return {
-          ...header,
-          value: getTemplateSrv().replace(header?.value || '', scopedVars, 'glob'),
-        };
-      }),
-    },
-    filters: (query.filters ? [...query.filters] : []).map((filter) => {
-      filter.value = filter.value.map((val) => {
-        return getTemplateSrv().replace(val || '', scopedVars, 'glob');
-      });
-      return filter;
-    }),
-  };
+    };
+  }
+  if (isDataSourceQuery(newQuery) && newQuery.source === 'url') {
+    newQuery = {
+      ...newQuery,
+      url: replaceVariable(newQuery.url, scopedVars),
+      url_options: {
+        ...newQuery.url_options,
+        data: replaceVariable(newQuery.url_options?.data || '', scopedVars),
+        params: newQuery.url_options?.params?.map((param) => {
+          return {
+            ...param,
+            value: getTemplateSrv().replace(param?.value || '', scopedVars, 'glob'),
+          };
+        }),
+        headers: newQuery.url_options?.headers?.map((header) => {
+          return {
+            ...header,
+            value: getTemplateSrv().replace(header?.value || '', scopedVars, 'glob'),
+          };
+        }),
+      },
+    };
+  }
+  if (isDataSourceQuery(newQuery) && newQuery.source === 'inline') {
+    newQuery = {
+      ...newQuery,
+      data: replaceVariable(newQuery.data, scopedVars),
+    };
+  }
+  return newQuery;
 };
 
 export const IsValidInfinityQuery = (query: InfinityQuery): boolean => {
   if (
     query &&
     query.type !== undefined &&
-    [InfinityQueryType.CSV, InfinityQueryType.JSON, InfinityQueryType.XML].includes(query.type) &&
-    query.source === InfinityQuerySources.URL
+    (query.type === 'csv' || query.type === 'json' || query.type === 'xml') &&
+    query.source === 'url'
   ) {
     return query.url !== undefined && query.url !== '';
   } else if (
     query &&
     query.type !== undefined &&
-    [InfinityQueryType.CSV, InfinityQueryType.JSON, InfinityQueryType.XML].includes(query.type) &&
-    query.source === InfinityQuerySources.Inline
+    (query.type === 'csv' || query.type === 'json' || query.type === 'xml') &&
+    query.source === 'inline'
   ) {
     return query.data !== undefined && query.data !== '';
   } else {
