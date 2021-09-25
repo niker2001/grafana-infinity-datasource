@@ -8,17 +8,19 @@ import {
 import { InfinityDatasource } from './datasource';
 
 //#region Settings
+export const IGNORE_URL = '__IGNORE_URL__';
+export interface GlobalInfinityQuery {
+  name: string;
+  id: string;
+  query: InfinityQuery;
+}
 export type InfinityConfig = {
   tlsSkipVerify?: boolean;
   tlsAuth?: boolean;
   serverName?: string;
   tlsAuthWithCACert?: boolean;
   timeoutInSeconds?: number;
-  global_queries?: Array<{
-    name: string;
-    id: string;
-    query: InfinityQuery;
-  }>;
+  global_queries?: GlobalInfinityQuery[];
   local_sources_options?: {
     enabled: boolean;
     allowed_paths?: string[];
@@ -192,4 +194,9 @@ export const defaultInfinityQuery: Omit<InfinityQuery, 'refId'> = {
 //#region Editor Props
 export type InfinityConfigEditorProps = DataSourcePluginOptionsEditorProps<InfinityConfig>;
 export type InfinityQueryEditorProps = QueryEditorProps<InfinityDatasource, InfinityQuery, InfinityConfig>;
+export enum EditorMode {
+  Standard = 'standard',
+  Global = 'global',
+  Variable = 'variable',
+}
 //#endregion

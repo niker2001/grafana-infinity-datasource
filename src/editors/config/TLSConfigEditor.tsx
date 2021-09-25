@@ -1,10 +1,9 @@
 import React from 'react';
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { InlineFormLabel, Switch, useTheme, LegacyForms } from '@grafana/ui';
 import { SecureTextArea } from './SecureTextArea';
-import { InfinityDataSourceJSONOptions, InfinityDataSourceSecureJSONOptions } from './../../types';
+import { InfinityConfigEditorProps, InfinityConfig, InfinitySecureConfig } from './../../types';
 
-interface TLSConfigEditorProps extends DataSourcePluginOptionsEditorProps<InfinityDataSourceJSONOptions> {
+interface TLSConfigEditorProps extends InfinityConfigEditorProps {
   hideTile?: boolean;
 }
 
@@ -13,9 +12,9 @@ export const TLSConfigEditor = (props: TLSConfigEditorProps) => {
   const { FormField } = LegacyForms;
   const { options, onOptionsChange } = props;
   const { jsonData, secureJsonFields } = options;
-  const secureJsonData = (options.secureJsonData || {}) as InfinityDataSourceSecureJSONOptions;
+  const secureJsonData = (options.secureJsonData || {}) as InfinitySecureConfig;
   const onTLSSettingsChange = (
-    key: keyof Pick<InfinityDataSourceJSONOptions, 'tlsSkipVerify' | 'tlsAuth' | 'tlsAuthWithCACert'>,
+    key: keyof Pick<InfinityConfig, 'tlsSkipVerify' | 'tlsAuth' | 'tlsAuthWithCACert'>,
     value: boolean
   ) => {
     onOptionsChange({
@@ -35,7 +34,7 @@ export const TLSConfigEditor = (props: TLSConfigEditorProps) => {
       },
     });
   };
-  const onCertificateChange = (key: keyof Omit<InfinityDataSourceSecureJSONOptions, 'password'>, value: string) => {
+  const onCertificateChange = (key: keyof Omit<InfinitySecureConfig, 'password'>, value: string) => {
     onOptionsChange({
       ...options,
       secureJsonData: {
@@ -44,7 +43,7 @@ export const TLSConfigEditor = (props: TLSConfigEditorProps) => {
       },
     });
   };
-  const onCertificateReset = (key: keyof Omit<InfinityDataSourceSecureJSONOptions, 'password'>) => {
+  const onCertificateReset = (key: keyof Omit<InfinitySecureConfig, 'password'>) => {
     onOptionsChange({
       ...options,
       secureJsonFields: {

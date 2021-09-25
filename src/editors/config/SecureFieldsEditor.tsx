@@ -2,7 +2,12 @@ import React, { PureComponent } from 'react';
 import uniqueId from 'lodash/uniqueId';
 import { DataSourceSettings } from '@grafana/data';
 import { Button, LegacyForms, IconButton } from '@grafana/ui';
-import { SecureField } from '../../types';
+interface SecureField {
+  id: string;
+  name: string;
+  value: string;
+  configured: boolean;
+}
 
 interface SecureFieldEditorProps {
   title: string;

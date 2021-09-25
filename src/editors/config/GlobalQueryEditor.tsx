@@ -1,34 +1,22 @@
 import React, { useState } from 'react';
 import { defaultsDeep, set } from 'lodash';
-import { DataSourcePluginOptionsEditorProps, updateDatasourcePluginJsonDataOption } from '@grafana/data';
+import { updateDatasourcePluginJsonDataOption } from '@grafana/data';
 import { Button, LegacyForms, Drawer } from '@grafana/ui';
-import { InfinityQueryEditor } from '../query/infinityQuery';
-import {
-  EditorMode,
-  GlobalInfinityQuery,
-  InfinityQuery,
-  InfinityQueryFormat,
-  InfinityQuerySources,
-  InfinityQueryType,
-  InfinityDataSourceJSONOptions,
-} from '../../types';
-
-export type Props = DataSourcePluginOptionsEditorProps<InfinityDataSourceJSONOptions>;
+// import { InfinityQueryEditor } from '../query/infinityQuery';
+import { GlobalInfinityQuery, InfinityQuery, InfinityConfigEditorProps } from '../../types';
 
 const DefaultGlobalQuery: InfinityQuery = {
   refId: '',
-  type: InfinityQueryType.CSV,
-  source: InfinityQuerySources.Inline,
+  type: 'csv',
+  source: 'inline',
   data: '',
-  url: '',
-  url_options: { method: 'GET' },
   root_selector: '',
   columns: [],
   filters: [],
-  format: InfinityQueryFormat.Table,
+  format: 'table',
 };
 
-export const GlobalQueryEditor = (props: Props) => {
+export const GlobalQueryEditor = (props: InfinityConfigEditorProps) => {
   const { options } = props;
   const { FormField } = LegacyForms;
 
@@ -119,7 +107,7 @@ interface GlobalQueryProps {
   q: GlobalInfinityQuery;
   updateDatasourcePluginJsonDataOption: any;
   deleteGlobalQuery: (index: number) => void;
-  props: Props;
+  props: InfinityConfigEditorProps;
   options: any;
   index: number;
 }
@@ -178,7 +166,7 @@ const GlobalQuery = ({
               updateDatasourcePluginJsonDataOption(props, 'global_queries', options.jsonData.global_queries);
             }}
           ></FormField>
-          <InfinityQueryEditor
+          {/* <InfinityQueryEditor
             query={q.query}
             mode={EditorMode.Global}
             onChange={() =>
@@ -186,7 +174,7 @@ const GlobalQuery = ({
             }
             onRunQuery={() => {}}
             instanceSettings={options}
-          />
+          /> */}
           <br />
           <span
             className="btn btn-primary"

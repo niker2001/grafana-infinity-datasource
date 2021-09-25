@@ -1,11 +1,8 @@
 import React from 'react';
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { Switch, InlineFormLabel, Input, Button, useTheme } from '@grafana/ui';
-import { InfinityDataSourceJSONOptions } from './../../types';
+import { InfinityConfigEditorProps } from './../../types';
 
-export type LocalSourcesEditorProps = DataSourcePluginOptionsEditorProps<InfinityDataSourceJSONOptions>;
-
-export const LocalSourcesEditor = (props: LocalSourcesEditorProps) => {
+export const LocalSourcesEditor = (props: InfinityConfigEditorProps) => {
   const theme = useTheme();
   const { options, onOptionsChange } = props;
   const switchContainerStyle: React.CSSProperties = {
